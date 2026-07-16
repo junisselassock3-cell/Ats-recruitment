@@ -1,7 +1,17 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from pypdf import PdfReader
 from fastapi.middleware.cors import CORSMiddleware
+from database import engine
+from models import Base
+from sqlalchemy.orm import Session
+from fastapi import HTTPException, Depends
+from services.ats_service import analyser_cv
+from database import get_db
+import crud
+import schemas
+
 app = FastAPI()
+Base.metadata.create_all(bind=engine)
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5174",
@@ -47,71 +57,36 @@ async def upload_cv(file: UploadFile = File(...)):
 @app.post("/analyse-cv")
 async def analyse_cv(
     file:UploadFile = File(...),
-    offre: str = Form(...)
+    offre: str = Form(...),
+    db: Session =Depends(get_db)  
 ):
+    print("j'ai bien chargé")
     if not file.filename.lower().endswith(".pdf"):
-        return{
-            "erreur": "Veillez envoyer un fichier PDF"
-        }
+      raise HTTPException(
+          status_code=400,
+          detail="Veillez envoyer un fichier pdf."
+      )
     reader = PdfReader(file.file)
     texte = ""
     for page in reader.pages:
         texte += page.extract_text() or ""
-    texte_cv = texte.lower()
-    texte_offre = offre.lower() 
-    competences_connue = [
-        "python",
-        "sql",
-        "postgresql",
-        "fastapi",
-        "react",
-        "javascript",
-        "html",
-        "css",
-        "git",
-        "githup",
-        "docker"
 
-    ]   
-    competences_offre = []
-    competences_cv = []
-    for comp in competences_connue:
-        if comp in texte_offre:
-            competences_offre.append(comp)
-        if comp in texte_cv:
-            competences_cv.append(comp)
-    competences_manquante = [
-        comp for comp in competences_offre
-        if comp not in competences_cv
-     ] 
-    competence_corres =[
-        comp for comp in competences_offre
-        if comp in competences_cv
-    ] 
-    comp_supp = [
-        comp for comp in competences_cv
-        if comp not in competences_offre
-    ]
-    score = 0
-    if len(competences_cv) >  0:
-        score= (
-            (len(competences_offre) - len(competences_manquante)) / len(competences_offre)
-        ) * 100
-    if score >= 80:
-        commentaire = "Excellent profill"
-    elif score >=60:
-        commentaire ="Profil intéressant"
-    elif score >=40:
-        commentaire = "Profil moyen"
-    else:
-        commentaire ="Profil peu adapter"                
-    return {
-        "score": round(score,2),
-        "commentaire": commentaire,
-        "competences_cv": competences_cv,
-        "competences_correspondantes": competence_corres,
-        "competences_manquantes": competences_manquante,
-        "competences_suplementaires": comp_supp,
-        
-
-    }            
+    resultat = analyser_cv(texte,offre)  
+    print("3 analyse terminé,")
+    candidate = schemas.CandidateCreate(
+        nom="junisse",
+        prenom="lassock",
+        email="junisselassock@gmail.com",
+        telephone="681411559",
+        adresse="Douala",
+        cv_nom = file.filename
+    )  
+    try:
+        crud.create_candidate(db,candidate)
+        print("✅ Candidat enregistré avec succès")
+    except Exception as e:
+     print("Error:", repr(e))
+     raise
+    return resultat       
+    
+    
