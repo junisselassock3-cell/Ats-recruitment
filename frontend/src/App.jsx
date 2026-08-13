@@ -2,6 +2,12 @@ import {BrowserRouter, Routes, Route} from "react-router-dom";
 import Navbar from "./components/Navebar";
 import Uploadcv from "./components/UploadCV";
 import ResultPage from './pages/ResultPage';
+import Historique from "./pages/Historique";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Dashboard from "./pages/Dashboard";
+
 function App(){
   return(
     <BrowserRouter>
@@ -23,7 +29,15 @@ function App(){
       </main>
         }>
         </Route>
-        <Route path="/resultat" element={<ResultPage/>}></Route>
+        <Route path="/resultat" element={
+          <ProtectedRoute><ResultPage/></ProtectedRoute>
+          }></Route>
+        <Route path="/historique" element={
+          <ProtectedRoute><Historique/></ProtectedRoute>
+          }></Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
       
     </div>

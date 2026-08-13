@@ -1,14 +1,14 @@
 from sqlalchemy.orm import Session
 import models
 import schemas
-
+import security
 def create_user(db:Session, user:schemas.UserCreate):
     db_user = models.User(
         nom = user.nom,
         prenom= user.prenom,
         email = user.email,
-        pass_word = user.pass_word,
-        role=user.role
+        role=user.role,
+    mot_de_passe =security.hash_password(user.pass_word)    
     )
     db.add(db_user)
     db.commit()
@@ -44,7 +44,6 @@ def create_skill(db: Session, skill:schemas.SkillCreate):
     db_skill = models.Skill(
         nom = skill.nom,
         categorie=skill.categorie
-
     )
     db.add(db_skill)
     db.commit()
@@ -52,8 +51,8 @@ def create_skill(db: Session, skill:schemas.SkillCreate):
     return db_skill
 def create_analysis(db: Session, analysis: schemas.AnalysisCreate):
     db_analysis = models.Analysis(
-        candidate_id = analysis.canditate_id,
-        job_offer_id = analysis.job_offer_id,
+        candidate_id = analysis.candidate_id,
+        job_id=analysis.job_offer_id,
         score = analysis.score,
         commentaire = analysis.commentaire
     )
@@ -61,4 +60,17 @@ def create_analysis(db: Session, analysis: schemas.AnalysisCreate):
     db.commit()
     db.refresh(db_analysis)
     return db_analysis
-
+def get_skill_by_name(db: Session, nom: str):
+    return db.query(models.Skill).filter(models.Skill.nom == nom).first()
+def create_analysis_skill(db: Session, analysis_skill: schemas.AnalysisSkillCreate):
+    db_analysis_skill = models.AnalysisSkill(
+        analysis_id=analysis_skill.analysis_id,
+        skill_id=analysis_skill.skill_id,
+        statut=analysis_skill.statut
+    )
+    db.add(db_analysis_skill)
+    db.commit()
+    db.refresh(db_analysis_skill)
+    return db_analysis_skill
+def get_user_by_email(db: Session, email: str):
+    return db.query(models.User).filter(models.User.email==email).first()

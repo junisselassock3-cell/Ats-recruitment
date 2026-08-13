@@ -11,7 +11,6 @@ class User(Base):
     mot_de_passe = Column(String(255), nullable=False)
     role = Column(String(20), default="Recruteur")
     date_creation = Column(DateTime(timezone=True),server_default=func.now())
-
 class Canditats(Base):
     __tablename__ = "candidates"
     id = Column(Integer, primary_key=True, index=True)
@@ -23,7 +22,6 @@ class Canditats(Base):
     cv_nom_fichier = Column(String(255))
     date_creation = Column(DateTime(timezone=True), server_default=func.now())
     analyses = relationship("Analysis", back_populates="candidate")
-
 class JobOffer(Base):
     __tablename__ = "job_offers"
     id = Column(Integer, primary_key=True, index=True)
@@ -36,13 +34,7 @@ class JobOffer(Base):
     statut = Column(String(50), default="ouverte")
     date_creation = Column(DateTime(timezone=True), server_default= func.now()) 
     analyses = relationship("Analysis", back_populates="job")
-class Skill(Base):
-    __tablename__ = "skills"    
-    id = Column(Integer, primary_key= True, index=True)
-    nom = Column(String(100), unique=True, nullable=False)
-    categorie = Column(String(1001))
-    analysis_skill = relationship("AnalysisSkill")
-
+ 
 class Analysis(Base):
     __tablename__ = "analyses"
     id = Column(Integer, primary_key=True, index=True)
@@ -54,7 +46,6 @@ class Analysis(Base):
     candidate = relationship("Canditats",  back_populates = "analyses")
     job = relationship("JobOffer", back_populates="analyses")
     analysis_skills = relationship("AnalysisSkill", back_populates="analysis")
-    
 class AnalysisSkill(Base):
     __tablename__ = "analysis_skills"
     id = Column(Integer, primary_key=True, index=True)
@@ -62,4 +53,10 @@ class AnalysisSkill(Base):
     skill_id = Column(Integer, ForeignKey("skills.id"), nullable=False)
     statut = Column(String(30), nullable=False)
     analysis = relationship("Analysis", back_populates="analysis_skills")
-    skill = relationship("Skill")    
+    skill = relationship("Skill", back_populates="analysis_skill")    
+class Skill(Base):
+    __tablename__ = "skills"    
+    id = Column(Integer, primary_key= True, index=True)
+    nom = Column(String(100), unique=True, nullable=False)
+    categorie = Column(String(1001))
+    analysis_skill = relationship("AnalysisSkill", back_populates="skill") 

@@ -12,7 +12,8 @@ def analyser_cv(texte, offre):
         "css",
         "git",
         "github",
-        "docker"
+        "docker",
+        "rubit"
     ]   
     competences_offre = []
     competences_cv = []
