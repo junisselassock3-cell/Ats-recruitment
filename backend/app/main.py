@@ -13,8 +13,6 @@ import schemas
 import models
 from auth import create_access_token, verify_token
 from security import verify_password
-
-
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
 origins = [
@@ -162,9 +160,7 @@ def dashboard_stats(email: str=Depends(verify_token),
                          "offres": nb_offre,
                          "analyses": nb_analyse,
                          "score_moyenne": round(score_moyenne or 0, 2)
-                    }
-                   
-
+                    }                  
 @app.post("/register")
 def register(user: schemas.UserCreate,
               db: Session= Depends(get_db)):
@@ -178,4 +174,45 @@ def login(user: schemas.Login, db: Session=Depends(get_db)):
         raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token" : access_token, "token_type": "bearer"}
-    
+
+@app.get("/candidates/{candidate_id}")
+def get_candidate(
+    candidate_id: int,
+    email: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    candidate = db.query(models.Canditats).filter(
+        models.Canditats.id == candidate_id
+    ).first()
+
+    if not candidate:
+        raise HTTPException(
+            status_code=404,
+            detail="Candidat introuvable"
+        )
+    return candidate    
+@app.get("/candidates/{candidate_id}/analyses")
+def get_candidate_analyses(
+    candidate_id: int,
+    email: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    analyses = (
+        db.query(models.Analysis)
+        .filter(models.Analysis.candidate_id == candidate_id)
+        .all()
+    )
+
+    result = []
+
+    for analyse in analyses:
+        result.append({
+            "id": analyse.id,
+            "job_id": analyse.job_id,
+            "job_titre": analyse.job.titre if analyse.job else "Offre inconnue",
+            "score": analyse.score,
+            "commentaire": analyse.commentaire,
+            "date_analyse": analyse.date_analyse
+        })
+
+    return result

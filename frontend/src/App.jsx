@@ -1,4 +1,4 @@
-import {BrowserRouter, Routes, Route} from "react-router-dom";
+import {BrowserRouter, Routes, Route, Router} from "react-router-dom";
 import Navbar from "./components/Navebar";
 import Uploadcv from "./components/UploadCV";
 import ResultPage from './pages/ResultPage';
@@ -7,6 +7,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import Candidates from "./pages/canditats";
+import CandidateDetail from "./pages/CandidateDetail";
 
 function App(){
   return(
@@ -38,6 +40,8 @@ function App(){
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/candidates" element={<Candidates />} />
+        <Route path="/candidates/:id" element={<CandidateDetail />}/>
       </Routes>
       
     </div>
