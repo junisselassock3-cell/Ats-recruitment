@@ -74,6 +74,7 @@ function Uploadcv(){
 
         </div>
     );
+    
 }
 
 export default Uploadcv;

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import StatsChart from "../components/StatsChart";
+
 function Dashboard() {  
   const navigate = useNavigate();
     const [stats, setStats] = useState({
@@ -45,7 +46,9 @@ function Dashboard() {
               🏠 Dashboard
             </li>
 
-            <li className="hover:bg-slate-700 rounded-lg px-4 py-3 cursor-pointer">
+            <li className="hover:bg-slate-700 rounded-lg px-4 py-3 cursor-pointer" 
+            onClick={() => navigate("/candidates")}
+            >
               👥 Candidats
             </li>
 

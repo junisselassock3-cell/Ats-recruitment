@@ -104,7 +104,7 @@ function CandidateDetail() {
                {analyses.map((analyse) => (
                <tr key={analyse.id} className="border-b">
                  <td className="p-4">{analyse.id}</td>
-                 <td className="p-4">{analyse.job_id}</td>
+                 <td className="p-4">{analyse.job_titre}</td>
                  <td className="p-4 font-semibold">{analyse.score}%</td>
                  <td className="p-4">{analyse.commentaire}</td>
                  <td className="p-4">{analyse.date_analyse  ? new Date(  analyse.date_analyse ).toLocaleDateString("fr-FR") : "-"}</td>
